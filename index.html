@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Offline tool that converts Markdown into HTML with a live preview. Runs entirely in your browser, no network and no dependencies.">
+  <title>Markdown to HTML</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#mdInput">Skip to input</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">M&#8595;</span>
+      <div class="brand-text">
+        <h1 class="brand-title">Markdown to HTML</h1>
+        <p class="brand-tagline">Type Markdown, see the HTML. Live preview, fully offline.</p>
+      </div>
+    </div>
+
+    <div class="actions" role="toolbar" aria-label="Converter actions">
+      <button type="button" id="copyBtn" class="btn btn-primary" disabled>Copy HTML</button>
+      <button type="button" id="downloadBtn" class="btn" disabled>Download HTML</button>
+      <button type="button" id="loadBtn" class="btn btn-ghost">Load .md</button>
+      <button type="button" id="clearBtn" class="btn btn-ghost" disabled>Clear</button>
+      <input type="file" id="fileInput" class="visually-hidden" accept=".md,.markdown,.mdown,.mkd,.txt,text/markdown,text/plain">
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="pane" aria-labelledby="inLabel">
+      <div class="pane-head">
+        <h2 id="inLabel" class="pane-title">Markdown</h2>
+        <span class="count" id="inCount" aria-live="off">Empty</span>
+      </div>
+      <label class="visually-hidden" for="mdInput">Markdown input</label>
+      <textarea
+        id="mdInput"
+        class="editor"
+        spellcheck="false"
+        autocomplete="off"
+        autocapitalize="off"
+        autocorrect="off"
+        placeholder="Type or paste Markdown here. It renders as you type."></textarea>
+    </section>
+
+    <section class="pane" aria-labelledby="outLabel">
+      <div class="pane-head">
+        <h2 id="outLabel" class="pane-title">HTML</h2>
+        <div class="segmented" role="group" aria-label="Output view">
+          <button type="button" id="viewPreviewBtn" class="seg" aria-pressed="true">Preview</button>
+          <button type="button" id="viewSourceBtn" class="seg" aria-pressed="false">HTML</button>
+        </div>
+        <span class="count" id="outCount" aria-live="off">Empty</span>
+      </div>
+
+      <div class="pane-body">
+        <article
+          id="preview"
+          class="markdown-body"
+          aria-label="Rendered preview"
+          data-empty="The rendered preview appears here."
+          tabindex="0"></article>
+        <pre
+          id="source"
+          class="source"
+          aria-label="Generated HTML source"
+          tabindex="0"
+          hidden><code id="sourceCode" data-empty="The generated HTML appears here."></code></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="statusbar">
+    <span id="status" class="status" role="status" aria-live="polite">Ready</span>
+    <span class="offline-note">100% offline. No network, no dependencies.</span>
+  </footer>
+
+  <script src="assets/js/tool.js"></script>
+</body>
+</html>
