@@ -17,6 +17,9 @@ it never touches the network.
   rendered result and the generated HTML source (shown as readable, escaped
   text).
 - **Copy HTML** copies the generated markup to the clipboard.
+- Every code block in the preview has a copy icon in its top-right corner that
+  copies only that block's text. The icon is preview-only and never appears in
+  the copied or downloaded HTML.
 - **Download HTML** saves the result as a self-contained `converted.html`
   document with a small built-in stylesheet.
 - **Load .md** reads a local Markdown file (`.md`, `.markdown`, `.txt`, ...)

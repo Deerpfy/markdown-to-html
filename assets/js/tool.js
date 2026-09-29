@@ -631,12 +631,58 @@
     els.clearBtn.disabled = !(hasIn || hasOut);
   }
 
+  /* ------------------------------------------------ code block copy buttons */
+  /* Mirrors assets/icons/copy.svg and check.svg. Inlined because file:// blocks
+     loading external SVG from script or CSS masks. */
+  var ICON_COPY = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  var ICON_CHECK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  /* Preview-only decoration: lastHtml, Copy HTML and Download stay untouched.
+     The wrapper keeps the button pinned while the pre scrolls horizontally. */
+  function addCodeCopyButtons() {
+    var pres = els.preview.querySelectorAll("pre");
+    for (var i = 0; i < pres.length; i++) {
+      var pre = pres[i];
+      var wrap = document.createElement("div");
+      wrap.className = "code-block";
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "code-copy";
+      btn.setAttribute("aria-label", "Copy code");
+      btn.title = "Copy code";
+      btn.innerHTML = ICON_COPY;
+      wrap.appendChild(btn);
+    }
+  }
+
+  function copyCodeBlock(btn) {
+    var code = btn.parentNode.querySelector("pre code") || btn.parentNode.querySelector("pre");
+    /* The renderer appends one trailing newline to every block. */
+    var text = code.textContent.replace(/\n$/, "");
+    copyText(text, btn, function () {
+      btn.innerHTML = ICON_CHECK;
+      btn.classList.add("is-copied");
+      btn.setAttribute("aria-label", "Copied");
+      flash("Code copied to clipboard");
+      clearTimeout(btn._copyTimer);
+      btn._copyTimer = setTimeout(function () {
+        btn.innerHTML = ICON_COPY;
+        btn.classList.remove("is-copied");
+        btn.setAttribute("aria-label", "Copy code");
+      }, 1500);
+    });
+  }
+
   function convert() {
     var html;
     try { html = window.markdownToHtml(els.input.value); }
     catch (e) { html = ""; }
     lastHtml = html;
     els.preview.innerHTML = html;
+    addCodeCopyButtons();
     els.sourceCode.textContent = html;
     els.outCount.textContent = counts(html);
     els.inCount.textContent = counts(els.input.value);
@@ -656,17 +702,21 @@
   /* ------------------------------------------------------------- actions */
   function copyOutput() {
     if (!lastHtml) { return; }
-    var ok = function () { flashButton(els.copyBtn, "Copied"); flash("HTML copied to clipboard"); };
+    copyText(lastHtml, els.input, function () { flashButton(els.copyBtn, "Copied"); flash("HTML copied to clipboard"); });
+  }
+
+  /* refocus: element that gets focus back after the fallback path steals it. */
+  function copyText(text, refocus, ok) {
     if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
-      navigator.clipboard.writeText(lastHtml).then(ok, function () { fallbackCopy(lastHtml, ok); });
+      navigator.clipboard.writeText(text).then(ok, function () { fallbackCopy(text, refocus, ok); });
     } else {
-      fallbackCopy(lastHtml, ok);
+      fallbackCopy(text, refocus, ok);
     }
   }
 
   /* The async clipboard API is often unavailable on file://, so fall back to a
      temporary off-screen textarea and the legacy copy command. */
-  function fallbackCopy(text, ok) {
+  function fallbackCopy(text, refocus, ok) {
     var ta = document.createElement("textarea");
     ta.value = text;
     ta.setAttribute("readonly", "readonly");
@@ -683,7 +733,7 @@
       copied = document.execCommand && document.execCommand("copy");
     } catch (e) { copied = false; }
     document.body.removeChild(ta);
-    els.input.focus();
+    refocus.focus();
     if (copied) { ok(); }
     else { flash("Copy unavailable. Switch to the HTML view and copy manually."); }
   }
@@ -799,6 +849,10 @@
     els.fileInput.addEventListener("change", function (e) {
       loadFile(e.target.files && e.target.files[0]);
       els.fileInput.value = "";   /* allow re-loading the same file */
+    });
+    els.preview.addEventListener("click", function (e) {
+      var btn = e.target.closest ? e.target.closest(".code-copy") : null;
+      if (btn && els.preview.contains(btn)) { copyCodeBlock(btn); }
     });
     els.viewPreviewBtn.addEventListener("click", function () { setView("preview"); });
     els.viewSourceBtn.addEventListener("click", function () { setView("source"); });
