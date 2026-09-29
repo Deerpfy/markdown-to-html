@@ -475,6 +475,46 @@ button { font-family: inherit; }
   white-space: pre;
 }
 
+/* Copy button pinned to the top-right of each code block in the preview. */
+.markdown-body .code-block {
+  position: relative;
+  margin: 0 0 1em;
+}
+.markdown-body .code-block > pre {
+  margin: 0;
+  padding-right: calc(var(--sp-md) + 36px);
+}
+.code-copy {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  color: var(--ink-soft);
+  cursor: pointer;
+  opacity: 0.85;
+  transition: background var(--speed) var(--ease),
+              border-color var(--speed) var(--ease),
+              color var(--speed) var(--ease),
+              opacity var(--speed) var(--ease);
+}
+.code-copy:hover { opacity: 1; color: var(--ink); border-color: var(--ink-faint); }
+.code-copy:active { background: var(--line); }
+.code-copy.is-copied {
+  opacity: 1;
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+.code-copy svg { display: block; }
+
 .markdown-body img {
   max-width: 100%;
   height: auto;
